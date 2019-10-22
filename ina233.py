@@ -180,11 +180,11 @@ class INA233:
     
     def _getEnergy_raw(self):
         value = self._bus.read_i2c_block_data(self._address,self.READ_EIN,6)
-        self._accumulator=(value[1] << 8) or value[0]
+        self._accumulator=(value[1] << 8) |  value[0]
         self._roll_over=value[2]
         self._sample_count=value[5]<< 16
-        self._sample_count=(value[4]<< 8)or self._sample_count
-        self._sample_count=(value[3]or self._sample_count)
+        self._sample_count=(value[4]<< 8) | self._sample_count
+        self._sample_count=(value[3] |  self._sample_count)
     
     def getAv_Power_mW(self):
         accumulator_24=0
@@ -196,7 +196,7 @@ class INA233:
     
         #av_power=(raw_av_power*pow(10,-R_p)-b_p)/m_p
         av_power = raw_av_power * self._Power_LSB
-        return av_power
+        return av_power * 1000
     
     def getPower_mW(self):
         value=self._getPower_raw()
