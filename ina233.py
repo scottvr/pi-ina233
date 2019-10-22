@@ -197,11 +197,13 @@ class INA233:
         accumulator_24=int(roll_over)*65536+int(accumulator)
         raw_av_power=accumulator_24/sample_count
     
-        av_power=(raw_av_power*pow(10,-R_p)-b_p)/m_p
+        #av_power=(raw_av_power*pow(10,-R_p)-b_p)/m_p
+        av_power = raw_av_power * self._Power_LSB
         return av_power * 1000
     
     def getPower_mW(bus, ic):
         value=getPower_raw(bus, ic)
-        power =(value*pow(10,-R_p)-b_p)/m_p
+        #power =(value*pow(10,-R_p)-b_p)/m_p
+        power = value * self._Power_LSB
         return power*1000
     
