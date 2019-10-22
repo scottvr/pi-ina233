@@ -145,7 +145,7 @@ class INA233:
         value =  self._bus.read_i2c_block_data(self._address, self.READ_IOUT, 2)
         return int((value[1] << 8) + value[0])
     
-    def _getCurrent_raw(self):
+    def _getCurrentIn_raw(self):
         value =  self._bus.read_i2c_block_data(self._address, self.READ_IIN, 2)
         return int((value[1] << 8) + value[0])
     
@@ -161,8 +161,8 @@ class INA233:
         vbus = value * self._BUS_MILLIVOLTS_LSB
         return vbus
     
-    def getCurrent_mA(self):
-        value=self._getCurrent_raw()
+    def getCurrentIn_mA(self):
+        value=self._getCurrentIn_raw()
         #current =(value*(pow(10,-R_c))-b_c)/m_c
         current = value * self._Current_LSB
         return float(current * 1000) 

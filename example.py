@@ -20,5 +20,5 @@ battery_ina233.calibrate(R_shunt_ohms, I_max_amps)
 solar_ina233.calibrate(R_shunt_ohms, I_max_amps) 
 
 print("Battery Bus Voltage    : %.3f V" % battery_ina233.getBusVoltage_V())
-print("Battery Bus Current    : %.3f mA" % battery_ina233.getCurrent_mA())
+print("Battery Bus Current    : %.3f mA" % battery_ina233.getCurrentIn_mA())
 print("Solar Bus Voltage      : %.3f V" % solar_ina233.getBusVoltage_V())
