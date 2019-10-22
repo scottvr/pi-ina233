@@ -179,7 +179,7 @@ class INA233:
         return int((value[1] << 8) + value[0])
     
     def _getEnergy_raw(self):
-        value = self._bus.read_i2c_block_data(self._address,READ_EIN,6)
+        value = self._bus.read_i2c_block_data(self._address,self.READ_EIN,6)
         self._accumulator=(value[1] << 8) or value[0]
         self._roll_over=value[2]
         self._sample_count=value[5]<< 16
