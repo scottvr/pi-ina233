@@ -192,11 +192,11 @@ class INA233:
         av_power=0
         self._getEnergy_raw()
         accumulator_24=int(self._roll_over)*65536+int(self._accumulator)
-        raw_av_power=accumulator_24/sample_count
+        raw_av_power=accumulator_24/self._sample_count
     
         #av_power=(raw_av_power*pow(10,-R_p)-b_p)/m_p
         av_power = raw_av_power * self._Power_LSB
-        return av_power * 1000
+        return av_power
     
     def getPower_mW(self):
         value=self._getPower_raw()
