@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-''' In this example, we have two INA233's, at addresses 0x44 and 0x45
+''' In this example, we have two INA233's, at addresses 0x40 and 0x41
 for a hypothetical solar battery charging system.
 '''
 
