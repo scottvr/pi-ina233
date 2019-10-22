@@ -1,28 +1,5 @@
 """ This library supports the TI INA233 current and power monitor
 with a Raspberry PI using SMBus/I2C.
-
-
-Example usage:
-
-    from ina233 import INA233
-
-    R_shunt = 0.020 # shunt resistor value in Ohms
-    I_max = 10 # max expected current in Amps
-
-    bus = 1 # I2C bus
-    battery_address = 0x44 # address of INA233 connected to battery circuit
-    solar_address = 0x45 # address of INA233 connected to solar charging circuit
-
-    battery_ina233 = INA233(bus, battery_address)
-    solar_ina233 = INA233(bus, solar_address)
-    
-    battery_ina233.calibrate(R_shunt, I_max)
-    solar_ina233.calibrate(R_shunt, I_max)
-
-    battery_voltage = battery_ina233.getBusVoltage()
-    solar_voltage = solar_ina233.getBusVoltage()
-    solar_current = solar_ina233.getCurrent_ma()
-
 """
 
 from smbus2 import SMBus
