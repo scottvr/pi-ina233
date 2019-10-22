@@ -63,6 +63,7 @@ class INA233:
     _BUS_MILLIVOLTS_LSB = 0.00125
     _SHUNT_MILLIVOLTS_LSB = 0.0000025
 
+
     def __init__(self, bus, address): 
         self._bus = SMBus(bus)
         self._address = address
@@ -174,35 +175,31 @@ class INA233:
         return float(current * 1000) 
     
     def _getPower_raw(self):
-        value = self._bus.read_word_data(self._address,READ_PIN)
-        return value
+        value =  self._bus.read_i2c_block_data(self._address, self.READ_PIN,2)
+        return int((value[1] << 8) + value[0])
     
-    def _getEnergy_raw(bus, accumulator, roll_over, sample_count, ic):
+    def _getEnergy_raw(self):
+        value = bus.read_i2c_block_data(self._address,READ_EIN,6)
+        self._accumulator=(value[1] << 8) or value[0]
+        self._roll_over=value[2]
+        self._sample_count=value[5]<< 16
+        self._sample_count=(value[4]<< 8)or self._sample_count
+        self._sample_count=(value[3]or self._sample_count)
     
-        value = bus.read_word_data(ic,READ_EIN)
-        accumulator=(value[1] << 8) or value[0]
-        roll_over=value[2]
-        sample_count=value[5]<< 16
-        sample_count=(value[4]<< 8)or sample_count
-        sample_count=(value[3]or sample_count)
-    
-    def getAv_Power_mW(bus, ic):
-        accumulator=0
-        roll_over=0
-        sample_count=0
+    def getAv_Power_mW(self):
         accumulator_24=0
         raw_av_power=0
         av_power=0
-        getEnergy_raw(bus, accumulator,roll_over, sample_count)
-        accumulator_24=int(roll_over)*65536+int(accumulator)
+        self._getEnergy_raw()
+        accumulator_24=int(self._roll_over)*65536+int(self._accumulator)
         raw_av_power=accumulator_24/sample_count
     
         #av_power=(raw_av_power*pow(10,-R_p)-b_p)/m_p
         av_power = raw_av_power * self._Power_LSB
         return av_power * 1000
     
-    def getPower_mW(bus, ic):
-        value=getPower_raw(bus, ic)
+    def getPower_mW(self):
+        value=self._getPower_raw()
         #power =(value*pow(10,-R_p)-b_p)/m_p
         power = value * self._Power_LSB
         return power*1000
