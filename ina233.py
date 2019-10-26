@@ -135,46 +135,37 @@ class INA233:
         self._m_p = int(self._m_p)
     
     def _getBusVoltage_raw(self):
-        value =  self._bus.read_word_data(self._address, self.READ_VIN)
-        return int(value)
+        raw_read =  self._bus.read_word_data(self._address, self.READ_VIN)
+        return int(raw_read)
     
     def _getShuntVoltage_raw(self):
-        value =  self._bus.read_word_data(self._address, self.MFR_READ_VSHUNT)
-        return int(value)
+        raw_read =  self._bus.read_word_data(self._address, self.MFR_READ_VSHUNT)
+        return int(raw_read)
     
     def _getCurrentOut_raw(self):
         raw_read =  self._bus.read_i2c_block_data(self._address, self.READ_IOUT, 2)
-        word_rdata = raw_read[0] * 256 + raw_read[1]
-        return word_rdata
+        return raw_read[0] * 256 + raw_read[1]
     
     def _getCurrentIn_raw(self):
-        raw_read =  self._bus.read_i2c_block_data(self._address, self.READ_IIN, 2)
-        word_rdata = raw_read[0] * 256 + raw_read[1]
-        return word_rdata
+        raw_read = self._bus.read_i2c_block_data(self._address, self.READ_IIN, 2)
+        return raw_read[0] * 256 + raw_read[1]
     
     def getShuntVoltage_mV(self):
-        value=self._getShuntVoltage_raw()
-        #vshunt=(value*pow(10,-self._R_vs)-self._b_vs)/self._m_vs
-        vshunt = value * self._SHUNT_MILLIVOLTS_LSB
-        return vshunt * 1000
+        raw_read = self._getShuntVoltage_raw()
+        #return ((raw_read*pow(10,-self._R_vs)-self._b_vs)/self._m_vs)
+        return raw_read * self._SHUNT_MILLIVOLTS_LSB * 1000
     
     def getBusVoltage_V(self):
-        value=self._getBusVoltage_raw()
-        #vbus =(value*pow(10,-self._R_vb)-self._b_vb)/self._m_vb
-        vbus = value * self._BUS_MILLIVOLTS_LSB
-        return vbus
-    
-    def getBusVoltage_V2(self):
-        value=self._getBusVoltage_raw()
-        vbus =(value*pow(10,-self._R_vb)-self._b_vb)/self._m_vb
-        return vbus
+        raw_read = self._getBusVoltage_raw()
+        #return ((raw_read*pow(10,-self._R_vb)-self._b_vb)/self._m_vb)
+        return raw_read * self._BUS_MILLIVOLTS_LSB
     
     def getCurrentIn_mA(self):
         word_rdata=self._getCurrentIn_raw()
         current_twos_compliment = word_rdata
         current_sign_bit = current_twos_compliment >> 15
         if(current_sign_bit == 1):
-            current = float(self._twos_compliment_to_int(current_twos_compliment, 16)) / 1000.0 * self._Current_LSB
+            current = float(self._twos_compliment_to_int(current_twos_compliment, 16)) * self._Current_LSB
         else:
             #current =(value*(pow(10,-self._R_c))-self._b_c)/self._m_c
             current = float(current_twos_compliment) * self._Current_LSB
@@ -185,24 +176,23 @@ class INA233:
         current_twos_compliment = word_rdata
         current_sign_bit = current_twos_compliment >> 15
         if(current_sign_bit == 1):
-            current = float(self._twos_compliment_to_int(current_twos_compliment, 16)) / 1000.0 * self._Current_LSB
+            current = float(self._twos_compliment_to_int(current_twos_compliment, 16)) * self._Current_LSB
         else:
-        #current =(value*(pow(10,-self._R_c))-self._b_c)/self._m_c
+            #current =(value*(pow(10,-self._R_c))-self._b_c)/self._m_c
             current = float(current_twos_compliment) * self._Current_LSB
         return current 
     
-    
     def _getPower_raw(self):
-        value =  self._bus.read_word_data(self._address, self.READ_PIN)
-        return int(value)
+        raw_read = self._bus.read_word_data(self._address, self.READ_PIN)
+        return int(raw_read)
     
     def _getEnergy_raw(self):
-        value = self._bus.read_i2c_block_data(self._address,self.READ_EIN,6)
-        self._accumulator=(value[0] << 8) |  value[1]
-        self._roll_over=value[2]
-        self._sample_count=value[5]<< 16
-        self._sample_count=(value[4]<< 8) | self._sample_count
-        self._sample_count=(value[3] |  self._sample_count)
+        raw_read = self._bus.read_i2c_block_data(self._address,self.READ_EIN,6)
+        self._accumulator=(raw_read[0] << 8) |  raw_read[1]
+        self._roll_over=raw_read[2]
+        self._sample_count=raw_read[5]<< 16
+        self._sample_count=(raw_read[4]<< 8) | self._sample_count
+        self._sample_count=(raw_read[3] |  self._sample_count)
     
     def getAv_Power_mW(self):
         accumulator_24=0
@@ -217,9 +207,9 @@ class INA233:
         return av_power * 1000
     
     def getPower_mW(self):
-        value=self._getPower_raw()
-        #power =(value*pow(10,-R_p)-b_p)/m_p
-        power = value * self._Power_LSB
+        raw_read=self._getPower_raw()
+        #power =(raw_read*pow(10,-R_p)-b_p)/m_p
+        power = raw_read * self._Power_LSB
         return power*1000
 
     def _twos_compliment_to_int(self, val, bits):
