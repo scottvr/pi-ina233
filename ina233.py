@@ -134,8 +134,12 @@ class INA233:
         self._m_c = int(self._m_c)
         self._m_p = int(self._m_p)
     
-    def _getBusVoltage_raw(self):
+    def _getBusVoltageIn_raw(self):
         raw_read =  self._bus.read_word_data(self._address, self.READ_VIN)
+        return int(raw_read)
+    
+    def _getBusVoltageOut_raw(self):
+        raw_read =  self._bus.read_word_data(self._address, self.READ_VOUT)
         return int(raw_read)
     
     def _getShuntVoltage_raw(self):
@@ -155,8 +159,13 @@ class INA233:
         #return ((raw_read*pow(10,-self._R_vs)-self._b_vs)/self._m_vs)
         return raw_read * self._SHUNT_MILLIVOLTS_LSB * 1000
     
-    def getBusVoltage_V(self):
-        raw_read = self._getBusVoltage_raw()
+    def getBusVoltageIn_V(self):
+        raw_read = self._getBusVoltageIn_raw()
+        #return ((raw_read*pow(10,-self._R_vb)-self._b_vb)/self._m_vb)
+        return raw_read * self._BUS_MILLIVOLTS_LSB
+    
+    def getBusVoltageOut_V(self):
+        raw_read = self._getBusVoltageOut_raw()
         #return ((raw_read*pow(10,-self._R_vb)-self._b_vb)/self._m_vb)
         return raw_read * self._BUS_MILLIVOLTS_LSB
     
