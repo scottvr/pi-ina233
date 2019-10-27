@@ -208,12 +208,14 @@ class INA233:
     def getAv_Power_mW(self):
         raw_av_power=0
         av_power=0
-        prev_accumulator_24 = self._accumulator_24
-        prev_sample_count = self._sample_count
+#        prev_accumulator_24 = self._accumulator_24
+#        prev_sample_count = self._sample_count
         self._getEnergy_raw()
         #Total Accumulated Unscaled Power (Accumulator_24) = (rollover_count × 2^16) + Accumulator
         self._accumulator_24=int(self._roll_over)*65536+int(self._accumulator)
-        raw_av_power=(self._accumulator_24-prev_accumulator_24)/(self._sample_count-prev_sample_count)
+#        raw_av_power=(self._accumulator_24-prev_accumulator_24)/(self._sample_count-prev_sample_count)
+        # doing it this way may be less accurate, but it avoids the divide by zero in the first reading
+        raw_av_power=(self._accumulator_24)/(self._sample_count)
         #av_power=(raw_av_power*pow(10,-self._R_p)-self._b_p)/self._m_p
         av_power = raw_av_power * self._Power_LSB
         return av_power * 1000
@@ -222,7 +224,7 @@ class INA233:
         raw_read=self._getPower_raw()
         #power =(raw_read*pow(10,-self._R_p)-self._b_p)/self._m_p
         power = raw_read * self._Power_LSB
-        return power * 1000
+        return power 
 
     def _twos_compliment_to_int(self, val, bits):
         if (val & (1 << (bits - 1))) != 0:
