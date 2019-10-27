@@ -63,6 +63,8 @@ class INA233:
     _BUS_MILLIVOLTS_LSB = 0.00125
     _SHUNT_MILLIVOLTS_LSB = 0.0000025
 
+    _accumulator_24 = 0
+    _sample_count = 0
 
     def __init__(self, bus, address): 
         self._bus = SMBus(bus)
@@ -204,22 +206,23 @@ class INA233:
         self._sample_count=(raw_read[3] |  self._sample_count)
     
     def getAv_Power_mW(self):
-        accumulator_24=0
         raw_av_power=0
         av_power=0
+        prev_accumulator_24 = self._accumulator_24
+        prev_sample_count = self._sample_count
         self._getEnergy_raw()
-        accumulator_24=int(self._roll_over)*65536+int(self._accumulator)
-        raw_av_power=accumulator_24/self._sample_count
-    
-        #av_power=(raw_av_power*pow(10,-R_p)-b_p)/m_p
+        #Total Accumulated Unscaled Power (Accumulator_24) = (rollover_count × 2^16) + Accumulator
+        self._accumulator_24=int(self._roll_over)*65536+int(self._accumulator)
+        raw_av_power=(self._accumulator_24-prev_accumulator_24)/(self._sample_count-prev_sample_count)
+        #av_power=(raw_av_power*pow(10,-self._R_p)-self._b_p)/self._m_p
         av_power = raw_av_power * self._Power_LSB
         return av_power * 1000
     
     def getPower_mW(self):
         raw_read=self._getPower_raw()
-        #power =(raw_read*pow(10,-R_p)-b_p)/m_p
+        #power =(raw_read*pow(10,-self._R_p)-self._b_p)/self._m_p
         power = raw_read * self._Power_LSB
-        return power*1000
+        return power * 1000
 
     def _twos_compliment_to_int(self, val, bits):
         if (val & (1 << (bits - 1))) != 0:
