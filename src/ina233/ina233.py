@@ -1,5 +1,5 @@
 """ This library supports the TI INA233 current and power monitor
-with a Raspberry PI using SMBus/I2C.
+Tested with a Raspberry PI Zero, but should work any way you can reach it using SMBus/I2C.
 
 By scottvr for 1SimplePhone.com
 """
